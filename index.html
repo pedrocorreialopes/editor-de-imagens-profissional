@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <!-- ===== META TAGS ESSENCIAIS ===== -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Editor de imagens profissional online. Faça upload, edite brilho, contraste, saturação, aplique filtros, redimensione e converta formatos de imagem facilmente." />
+  <meta name="keywords" content="editor de imagem, manipulação de foto, converter imagem, redimensionar, brilho, contraste, saturação, filtros" />
+  <meta name="author" content="Pedro Correia" />
+  <meta property="og:title" content="PixelCraft — Editor de Imagens Profissional" />
+  <meta property="og:description" content="Editor de imagens online gratuito. Edite, transforme e converta suas fotos com facilidade." />
+  <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#6C63FF" />
+
+  <!-- ===== TÍTULO ===== -->
+  <title>PixelCraft — Editor de Imagens Profissional</title>
+
+  <!-- ===== FONTS ===== -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- ===== ICONS ===== -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" />
+
+  <!-- ===== STYLESHEET ===== -->
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- ===== SCHEMA.ORG JSON-LD ===== -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "PixelCraft Editor de Imagens",
+    "description": "Editor de imagens profissional online com suporte a múltiplos formatos",
+    "applicationCategory": "MultimediaApplication",
+    "operatingSystem": "Web Browser",
+    "author": {
+      "@type": "Person",
+      "name": "Pedro Correia",
+      "telephone": "85 98900-2536"
+    }
+  }
+  </script>
+</head>
+
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <header class="app-header" role="banner">
+    <div class="header__inner container">
+      <div class="header__brand">
+        <div class="brand__logo" aria-hidden="true">
+          <i class="fas fa-magic"></i>
+        </div>
+        <div class="brand__text">
+          <span class="brand__name">PixelCraft</span>
+          <span class="brand__tagline">Editor Profissional</span>
+        </div>
+      </div>
+
+      <nav class="header__nav" role="navigation" aria-label="Ações principais">
+        <button class="btn btn--ghost btn--sm" id="btnClearAll" aria-label="Limpar todas as imagens" title="Limpar tudo">
+          <i class="fas fa-trash-alt"></i>
+          <span>Limpar Tudo</span>
+        </button>
+        <button class="btn btn--primary btn--sm" id="btnDownloadAll" aria-label="Baixar todas as imagens" title="Download em lote">
+          <i class="fas fa-download"></i>
+          <span>Baixar Todas</span>
+        </button>
+        <button class="btn btn--icon" id="btnToggleTheme" aria-label="Alternar tema claro/escuro" title="Alternar tema">
+          <i class="fas fa-moon" id="themeIcon"></i>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===== MAIN ===== -->
+  <main class="app-main" role="main" id="main-content">
+
+    <!-- ===== UPLOAD ZONE ===== -->
+    <section class="upload-section container" aria-labelledby="uploadTitle">
+      <div
+        class="upload-zone"
+        id="uploadZone"
+        role="region"
+        aria-label="Área de upload de imagens"
+        tabindex="0"
+      >
+        <div class="upload-zone__content">
+          <div class="upload-zone__icon" aria-hidden="true">
+            <i class="fas fa-cloud-upload-alt"></i>
+          </div>
+          <h2 class="upload-zone__title" id="uploadTitle">
+            Arraste suas fotos aqui
+          </h2>
+          <p class="upload-zone__subtitle">
+            ou clique para selecionar arquivos
+          </p>
+          <p class="upload-zone__formats">
+            Suporta: <strong>JPG, PNG, GIF, BMP, WEBP, SVG</strong>
+          </p>
+          <label class="btn btn--primary btn--lg upload-zone__btn" for="fileInput" role="button">
+            <i class="fas fa-images"></i>
+            Selecionar Imagens
+          </label>
+          <input
+            type="file"
+            id="fileInput"
+            accept="image/*"
+            multiple
+            class="upload-zone__input"
+            aria-label="Selecionar imagens para upload"
+          />
+        </div>
+
+        <!-- Drag overlay -->
+        <div class="upload-zone__overlay" id="dragOverlay" aria-hidden="true">
+          <i class="fas fa-images"></i>
+          <span>Solte aqui para carregar!</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== WORKSPACE ===== -->
+    <section class="workspace" id="workspace" aria-label="Área de trabalho" hidden>
+      <div class="container">
+
+        <!-- Toolbar de batch -->
+        <div class="batch-toolbar" role="toolbar" aria-label="Ações em lote">
+          <div class="batch-toolbar__info">
+            <i class="fas fa-layer-group"></i>
+            <span id="batchCount">0 imagens carregadas</span>
+          </div>
+          <div class="batch-toolbar__actions">
+            <button class="btn btn--outline btn--sm" id="btnSelectAll" aria-label="Selecionar todas as imagens">
+              <i class="fas fa-check-square"></i> Selecionar Todas
+            </button>
+            <button class="btn btn--outline btn--sm" id="btnApplyToAll" aria-label="Aplicar filtros a todas">
+              <i class="fas fa-magic"></i> Aplicar a Todas
+            </button>
+          </div>
+        </div>
+
+        <!-- Grid de imagens -->
+        <div class="images-grid" id="imagesGrid" role="list" aria-label="Lista de imagens carregadas">
+          <!-- Cards inseridos via JS -->
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== MODAL EDITOR ===== -->
+  <div
+    class="modal-overlay"
+    id="editorModal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modalTitle"
+    aria-hidden="true"
+  >
+    <div class="modal">
+
+      <!-- Modal Header -->
+      <header class="modal__header">
+        <div class="modal__title-group">
+          <i class="fas fa-edit" aria-hidden="true"></i>
+          <h2 class="modal__title" id="modalTitle">Editando: <span id="modalFileName"></span></h2>
+        </div>
+        <button class="btn btn--icon modal__close" id="btnCloseModal" aria-label="Fechar editor">
+          <i class="fas fa-times"></i>
+        </button>
+      </header>
+
+      <!-- Modal Body -->
+      <div class="modal__body">
+
+        <!-- Preview Canvas -->
+        <div class="editor__preview-area">
+          <div class="editor__canvas-wrap" id="canvasWrap">
+            <canvas id="editorCanvas" aria-label="Pré-visualização da imagem editada"></canvas>
+            <div class="canvas__loading" id="canvasLoading" aria-live="polite">
+              <i class="fas fa-spinner fa-spin"></i>
+              <span>Processando...</span>
+            </div>
+          </div>
+
+          <!-- Info da imagem -->
+          <div class="editor__info-bar">
+            <span class="info-chip" id="infoOrigDims"><i class="fas fa-expand-arrows-alt"></i> Original: —</span>
+            <span class="info-chip" id="infoNewDims"><i class="fas fa-crop-alt"></i> Novo: —</span>
+            <span class="info-chip" id="infoFileSize"><i class="fas fa-file-image"></i> Tamanho: —</span>
+            <span class="info-chip" id="infoFormat"><i class="fas fa-file-alt"></i> Formato: —</span>
+          </div>
+
+          <!-- Ações do Preview -->
+          <div class="editor__preview-actions">
+            <button class="btn btn--ghost btn--sm" id="btnZoomIn" aria-label="Aumentar zoom" title="Zoom +">
+              <i class="fas fa-search-plus"></i>
+            </button>
+            <button class="btn btn--ghost btn--sm" id="btnZoomOut" aria-label="Diminuir zoom" title="Zoom -">
+              <i class="fas fa-search-minus"></i>
+            </button>
+            <button class="btn btn--ghost btn--sm" id="btnZoomFit" aria-label="Ajustar ao tamanho" title="Ajustar">
+              <i class="fas fa-compress-arrows-alt"></i>
+            </button>
+            <button class="btn btn--ghost btn--sm" id="btnResetFilters" aria-label="Redefinir todos os filtros">
+              <i class="fas fa-undo"></i> Reset
+            </button>
+          </div>
+        </div>
+
+        <!-- Painel de Controles -->
+        <aside class="editor__controls" aria-label="Controles de edição">
+
+          <!-- Tabs de controle -->
+          <nav class="controls-tabs" role="tablist" aria-label="Seções de edição">
+            <button class="tab-btn tab-btn--active" role="tab" aria-selected="true" aria-controls="tabAdjust" id="tabBtnAdjust" data-tab="adjust">
+              <i class="fas fa-sliders-h"></i> Ajustes
+            </button>
+            <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tabFilters" id="tabBtnFilters" data-tab="filters">
+              <i class="fas fa-palette"></i> Filtros
+            </button>
+            <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tabTransform" id="tabBtnTransform" data-tab="transform">
+              <i class="fas fa-vector-square"></i> Transformar
+            </button>
+            <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tabExport" id="tabBtnExport" data-tab="export">
+              <i class="fas fa-file-export"></i> Exportar
+            </button>
+          </nav>
+
+          <!-- TAB: AJUSTES -->
+          <div class="tab-panel tab-panel--active" id="tabAdjust" role="tabpanel" aria-labelledby="tabBtnAdjust">
+
+            <div class="control-group">
+              <label class="control-label" for="ctrlBrightness">
+                <i class="fas fa-sun"></i> Brilho
+                <span class="control-value" id="valBrightness">0</span>
+              </label>
+              <input type="range" id="ctrlBrightness" class="range-input" min="-100" max="100" value="0" step="1" aria-valuemin="-100" aria-valuemax="100" aria-valuenow="0" />
+              <div class="range-marks"><span>-100</span><span>0</span><span>+100</span></div>
+            </div>
+
+            <div class="control-group">
+              <label class="control-label" for="ctrlContrast">
+                <i class="fas fa-adjust"></i> Contraste
+                <span class="control-value" id="valContrast">0</span>
+              </label>
+              <input type="range" id="ctrlContrast" class="range-input" min="-100" max="100" value="0" step="1" aria-valuemin="-100" aria-valuemax="100" aria-valuenow="0" />
+              <div class="range-marks"><span>-100</span><span>0</span><span>+100</span></div>
+            </div>
+
+            <div class="control-group">
+              <label class="control-label" for="ctrlSaturation">
+                <i class="fas fa-tint"></i> Saturação
+                <span class="control-value" id="valSaturation">0</span>
+              </label>
+              <input type="range" id="ctrlSaturation" class="range-input" min="-100" max="100" value="0" step="1" aria-valuemin="-100" aria-valuemax="100" aria-valuenow="0" />
+              <div class="range-marks"><span>-100</span><span>0</span><span>+100</span></div>
+            </div>
+
+            <div class="control-group">
+              <label class="control-label" for="ctrlExposure">
+                <i class="fas fa-camera"></i> Exposição
+                <span class="control-value" id="valExposure">0</span>
+              </label>
+              <input type="range" id="ctrlExposure" class="range-input" min="-100" max="100" value="0" step="1" aria-valuemin="-100" aria-valuemax="100" aria-valuenow="0" />
+              <div class="range-marks"><span>-100</span><span>0</span><span>+100</span></div>
+            </div>
+
+            <div class="control-group">
+              <label class="control-label" for="ctrlHue">
+                <i class="fas fa-rainbow"></i> Matiz (Hue)
+                <span class="control-value" id="valHue">0°</span>
+              </label>
+              <input type="range" id="ctrlHue" class="range-input range-input--hue" min="-180" max="180" value="0" step="1" aria-valuemin="-180" aria-valuemax="180" aria-valuenow="0" />
+              <div class="range-marks"><span>-180°</span><span>0°</span><span>+180°</span></div>
+            </div>
+
+            <div class="control-group">
+              <label class="control-label" for="ctrlSharpness">
+                <i class="fas fa-crosshairs"></i> Nitidez
+                <span class="control-value" id="valSharpness">0</span>
+              </label>
+              <input type="range" id="ctrlSharpness" class="range-input" min="0" max="10" value="0" step="1" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0" />
+              <div class="range-marks"><span>0</span><span>5</span><span>10</span></div>
+            </div>
+
+            <div class="control-group">
+              <label class="control-label" for="ctrlNoise">
+                <i class="fas fa-broadcast-tower"></i> Ruído
+                <span class="control-value" id="valNoise">0</span>
+              </label>
+              <input type="range" id="ctrlNoise" class="range-input" min="0" max="100" value="0" step="1" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" />
+              <div class="range-marks"><span>0</span><span>50</span><span>100</span></div>
+            </div>
+
+            <div class="control-group">
+              <label class="control-label" for="ctrlBlur">
+                <i class="fas fa-eye-slash"></i> Desfoque
+                <span class="control-value" id="valBlur">0</span>
+              </label>
+              <input type="range" id="ctrlBlur" class="range-input" min="0" max="20" value="0" step="0.5" aria-valuemin="0" aria-valuemax="20" aria-valuenow="0" />
+              <div class="range-marks"><span>0</span><span>10</span><span>20</span></div>
+            </div>
+
+          </div>
+
+          <!-- TAB: FILTROS PRESET -->
+          <div class="tab-panel" id="tabFilters" role="tabpanel" aria-labelledby="tabBtnFilters" hidden>
+
+            <!-- Escala de cinza e P&B -->
+            <div class="control-group">
+              <p class="control-section-title"><i class="fas fa-circle-half-stroke"></i> Modo de cor</p>
+              <div class="toggle-group">
+                <label class="toggle-item">
+                  <input type="checkbox" id="ctrlGrayscale" class="toggle-input" role="switch" aria-checked="false" />
+                  <span class="toggle-track"></span>
+                  <span class="toggle-label"><i class="fas fa-adjust"></i> Escala de cinza</span>
+                </label>
+                <label class="toggle-item">
+                  <input type="checkbox" id="ctrlBlackWhite" class="toggle-input" role="switch" aria-checked="false" />
+                  <span class="toggle-track"></span>
+                  <span class="toggle-label"><i class="fas fa-circle"></i> Preto &amp; Branco</span>
+                </label>
+                <label class="toggle-item">
+                  <input type="checkbox" id="ctrlSepia" class="toggle-input" role="switch" aria-checked="false" />
+                  <span class="toggle-track"></span>
+                  <span class="toggle-label"><i class="fas fa-coffee"></i> Sépia</span>
+                </label>
+                <label class="toggle-item">
+                  <input type="checkbox" id="ctrlInvert" class="toggle-input" role="switch" aria-checked="false" />
+                  <span class="toggle-track"></span>
+                  <span class="toggle-label"><i class="fas fa-adjust"></i> Inverter Cores</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Filtros Vignette -->
+            <div class="control-group">
+              <label class="control-label" for="ctrlVignette">
+                <i class="fas fa-dot-circle"></i> Vinheta
+                <span class="control-value" id="valVignette">0</span>
+              </label>
+              <input type="range" id="ctrlVignette" class="range-input" min="0" max="100" value="0" step="1" />
+            </div>
+
+            <!-- Temperatura de cor -->
+            <div class="control-group">
+              <label class="control-label" for="ctrlTemperature">
+                <i class="fas fa-thermometer-half"></i> Temperatura
+                <span class="control-value" id="valTemperature">0</span>
+              </label>
+              <input type="range" id="ctrlTemperature" class="range-input range-input--temp" min="-100" max="100" value="0" step="1" />
+              <div class="range-marks"><span>Frio</span><span>Neutro</span><span>Quente</span></div>
+            </div>
+
+            <!-- Filtros Preset -->
+            <div class="control-group">
+              <p class="control-section-title"><i class="fas fa-filter"></i> Filtros Predefinidos</p>
+              <div class="presets-grid" id="presetsGrid" role="list" aria-label="Filtros predefinidos">
+                <!-- Inseridos via JS -->
+              </div>
+            </div>
+
+          </div>
+
+          <!-- TAB: TRANSFORMAR -->
+          <div class="tab-panel" id="tabTransform" role="tabpanel" aria-labelledby="tabBtnTransform" hidden>
+
+            <!-- Dimensões -->
+            <div class="control-group">
+              <p class="control-section-title"><i class="fas fa-ruler-combined"></i> Dimensões</p>
+              <div class="dimension-inputs">
+                <div class="dim-input-wrap">
+                  <label for="ctrlWidth" class="dim-label">Largura (px)</label>
+                  <input type="number" id="ctrlWidth" class="number-input" min="1" max="8000" placeholder="Auto" aria-label="Largura em pixels" />
+                </div>
+                <button class="btn btn--icon btn--sm lock-ratio" id="btnLockRatio" title="Manter proporção" aria-label="Bloquear proporção" aria-pressed="true">
+                  <i class="fas fa-lock" id="lockIcon"></i>
+                </button>
+                <div class="dim-input-wrap">
+                  <label for="ctrlHeight" class="dim-label">Altura (px)</label>
+                  <input type="number" id="ctrlHeight" class="number-input" min="1" max="8000" placeholder="Auto" aria-label="Altura em pixels" />
+                </div>
+              </div>
+              <!-- Presets de tamanho -->
+              <div class="size-presets">
+                <span class="size-presets__label">Presets:</span>
+                <button class="btn btn--chip" data-w="1920" data-h="1080">HD</button>
+                <button class="btn btn--chip" data-w="1280" data-h="720">720p</button>
+                <button class="btn btn--chip" data-w="800" data-h="600">800×600</button>
+                <button class="btn btn--chip" data-w="400" data-h="400">400²</button>
+                <button class="btn btn--chip" data-w="1080" data-h="1080">1080²</button>
+                <button class="btn btn--chip" data-w="1200" data-h="628">OG</button>
+              </div>
+            </div>
+
+            <!-- Rotação e Espelhamento -->
+            <div class="control-group">
+              <p class="control-section-title"><i class="fas fa-sync-alt"></i> Rotação &amp; Flip</p>
+              <div class="transform-btns">
+                <button class="btn btn--outline btn--sm" id="btnRotateLeft" aria-label="Rotacionar 90° para esquerda">
+                  <i class="fas fa-undo"></i> -90°
+                </button>
+                <button class="btn btn--outline btn--sm" id="btnRotateRight" aria-label="Rotacionar 90° para direita">
+                  <i class="fas fa-redo"></i> +90°
+                </button>
+                <button class="btn btn--outline btn--sm" id="btnFlipH" aria-label="Espelhar horizontalmente">
+                  <i class="fas fa-arrows-alt-h"></i> Flip H
+                </button>
+                <button class="btn btn--outline btn--sm" id="btnFlipV" aria-label="Espelhar verticalmente">
+                  <i class="fas fa-arrows-alt-v"></i> Flip V
+                </button>
+              </div>
+            </div>
+
+            <!-- Recorte -->
+            <div class="control-group">
+              <label class="control-label" for="ctrlCropX">
+                <i class="fas fa-crop-alt"></i> Recorte (%)
+              </label>
+              <div class="crop-controls">
+                <div class="crop-row">
+                  <label for="ctrlCropTop" class="crop-label">Topo</label>
+                  <input type="number" id="ctrlCropTop" class="number-input number-input--sm" min="0" max="49" value="0" />
+                  <label for="ctrlCropBottom" class="crop-label">Base</label>
+                  <input type="number" id="ctrlCropBottom" class="number-input number-input--sm" min="0" max="49" value="0" />
+                </div>
+                <div class="crop-row">
+                  <label for="ctrlCropLeft" class="crop-label">Esq.</label>
+                  <input type="number" id="ctrlCropLeft" class="number-input number-input--sm" min="0" max="49" value="0" />
+                  <label for="ctrlCropRight" class="crop-label">Dir.</label>
+                  <input type="number" id="ctrlCropRight" class="number-input number-input--sm" min="0" max="49" value="0" />
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- TAB: EXPORTAR -->
+          <div class="tab-panel" id="tabExport" role="tabpanel" aria-labelledby="tabBtnExport" hidden>
+
+            <!-- Formato de saída -->
+            <div class="control-group">
+              <p class="control-section-title"><i class="fas fa-file-alt"></i> Formato de Saída</p>
+              <div class="format-grid" role="group" aria-label="Formato de exportação">
+                <label class="format-card format-card--active" data-format="image/jpeg">
+                  <input type="radio" name="exportFormat" value="image/jpeg" checked class="sr-only" />
+                  <i class="fas fa-image"></i>
+                  <span>JPG</span>
+                </label>
+                <label class="format-card" data-format="image/png">
+                  <input type="radio" name="exportFormat" value="image/png" class="sr-only" />
+                  <i class="fas fa-image"></i>
+                  <span>PNG</span>
+                </label>
+                <label class="format-card" data-format="image/bmp">
+                  <input type="radio" name="exportFormat" value="image/bmp" class="sr-only" />
+                  <i class="fas fa-image"></i>
+                  <span>BMP</span>
+                </label>
+                <label class="format-card" data-format="image/gif">
+                  <input type="radio" name="exportFormat" value="image/gif" class="sr-only" />
+                  <i class="fas fa-image"></i>
+                  <span>GIF</span>
+                </label>
+                <label class="format-card" data-format="image/webp">
+                  <input type="radio" name="exportFormat" value="image/webp" class="sr-only" />
+                  <i class="fas fa-image"></i>
+                  <span>WEBP</span>
+                </label>
+              </div>
+              <p class="format-note" id="formatNote"><i class="fas fa-info-circle"></i> JPG não suporta transparência.</p>
+            </div>
+
+            <!-- Qualidade JPEG -->
+            <div class="control-group" id="qualityGroup">
+              <label class="control-label" for="ctrlQuality">
+                <i class="fas fa-compress-arrows-alt"></i> Qualidade
+                <span class="control-value" id="valQuality">92%</span>
+              </label>
+              <input type="range" id="ctrlQuality" class="range-input" min="1" max="100" value="92" step="1" aria-valuemin="1" aria-valuemax="100" aria-valuenow="92" />
+              <div class="range-marks"><span>1%</span><span>50%</span><span>100%</span></div>
+            </div>
+
+            <!-- Nome do arquivo -->
+            <div class="control-group">
+              <label class="control-label" for="ctrlFilename">
+                <i class="fas fa-tag"></i> Nome do Arquivo
+              </label>
+              <input type="text" id="ctrlFilename" class="text-input" placeholder="nome-do-arquivo" aria-label="Nome do arquivo de saída" />
+            </div>
+
+            <!-- Preview do arquivo exportado -->
+            <div class="export-preview" id="exportPreview">
+              <div class="export-preview__row">
+                <span>Tamanho estimado:</span>
+                <strong id="estFileSize">—</strong>
+              </div>
+              <div class="export-preview__row">
+                <span>Dimensões:</span>
+                <strong id="estDimensions">—</strong>
+              </div>
+            </div>
+
+            <!-- Botões de exportação -->
+            <div class="export-actions">
+              <button class="btn btn--primary btn--lg btn--full" id="btnDownloadSingle" aria-label="Baixar imagem editada">
+                <i class="fas fa-download"></i> Baixar Imagem
+              </button>
+              <button class="btn btn--outline btn--full" id="btnCopySingle" aria-label="Copiar imagem para área de transferência">
+                <i class="fas fa-copy"></i> Copiar para Clipboard
+              </button>
+            </div>
+
+          </div>
+
+        </aside>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== TOAST NOTIFICATIONS ===== -->
+  <div class="toast-container" id="toastContainer" aria-live="assertive" aria-atomic="true" role="alert"></div>
+
+  <!-- ===== PROGRESS OVERLAY ===== -->
+  <div class="progress-overlay" id="progressOverlay" aria-hidden="true">
+    <div class="progress-overlay__inner">
+      <div class="progress-spinner"></div>
+      <p id="progressText">Processando imagens...</p>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      <span id="progressCount">0/0</span>
+    </div>
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="app-footer" role="contentinfo">
+    <div class="container">
+      <div class="footer__content">
+        <div class="footer__brand">
+          <i class="fas fa-magic"></i>
+          <strong>PixelCraft</strong>
+        </div>
+        <p class="footer__credit">
+          Site desenvolvido por <strong>Pedro Correia</strong>
+        </p>
+        <a href="tel:+5585989002536" class="footer__contact" aria-label="Ligar para Pedro Correia">
+          <i class="fas fa-phone-alt"></i>
+          <span>85 98900-2536</span>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===== SCRIPTS ===== -->
+  <script src="js/filters.js" defer></script>
+  <script src="js/editor.js" defer></script>
+  <script src="js/app.js" defer></script>
+
+</body>
+</html>
